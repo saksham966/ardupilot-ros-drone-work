@@ -1,0 +1,114 @@
+# Installation
+
+## Prerequisites
+
+- Ubuntu 20.04/22.04
+- Git
+- Python 3
+- CMake
+- Gazebo Classic 11
+- MAVProxy
+
+---
+
+## 1. Clone ArduPilot
+
+```bash
+git clone https://github.com/ArduPilot/ardupilot.git
+cd ardupilot
+git submodule update --init --recursive
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
+Tools/environment_install/install-prereqs-ubuntu.sh -y
+```
+
+Restart your terminal after installation.
+
+---
+
+## 3. Build ArduPilot SITL
+
+```bash
+./waf configure --board sitl
+./waf copter
+```
+
+---
+
+## 4. Clone ArduPilot Gazebo Plugin
+
+```bash
+cd ~
+git clone https://github.com/ArduPilot/ardupilot_gazebo.git
+```
+
+---
+
+## 5. Build the Gazebo Plugin
+
+```bash
+cd ~/ardupilot_gazebo
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
+---
+
+## 6. Configure Environment Variables
+
+Add the following lines to your `~/.bashrc`:
+
+```bash
+export GAZEBO_MODEL_PATH=$HOME/ardupilot_gazebo/models:$GAZEBO_MODEL_PATH
+export GAZEBO_RESOURCE_PATH=$HOME/ardupilot_gazebo/worlds:$GAZEBO_RESOURCE_PATH
+export GAZEBO_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GAZEBO_PLUGIN_PATH
+```
+
+Reload the terminal:
+
+```bash
+source ~/.bashrc
+```
+
+---
+
+## 7. Launch Gazebo
+
+```bash
+cd ~/ardupilot_gazebo
+gazebo worlds/iris_arducopter_runway.world
+```
+
+---
+
+## 8. Start ArduPilot SITL
+
+Open a new terminal:
+
+```bash
+cd ~/ardupilot
+
+Tools/autotest/sim_vehicle.py \
+-v ArduCopter \
+-f gazebo-iris \
+--console \
+--map
+```
+
+---
+
+## 9. Basic Flight Commands
+
+```text
+mode GUIDED
+arm throttle
+takeoff 10
+land
+```
